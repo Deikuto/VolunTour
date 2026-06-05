@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VolunTour | Отпор</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="ui-panel">
+        <header>
+            <h1>VolunTour 🌍</h1>
+            <p>Не бъди турист. Бъди промяната.</p>
+            <div id="auth-section">
+                <button id="login-btn" onclick="simulateLogin()">👤 Вход за Гидове</button>
+                <div id="user-profile" class="hidden">
+                    <span>👋 Здравей, Владо!</span>
+                    <button onclick="showCreateForm()" class="action-btn">+ Нова Мисия</button>
+                </div>
+            </div>
+        </header>
+
+        <div id="missions-list">
+            <h2>🔥 Активни мисии в района</h2>
+            <div id="tours-container">
+                </div>
+        </div>
+
+        <div id="create-form" class="hidden">
+            <h2>🚩 Създай Мисия</h2>
+            <p class="hint">Кликни на картата, за да избереш локация!</p>
+            <input type="text" id="m-title" placeholder="Заглавие (напр. Чистене на плажа)">
+            <textarea id="m-desc" placeholder="Какво ще правим?"></textarea>
+            <input type="number" id="m-spots" placeholder="Нужни хора (напр. 10)">
+            <p>Локация: <span id="selected-coords">Не е избрана</span></p>
+            <button onclick="submitMission()" class="action-btn">🚀 Публикувай</button>
+            <button onclick="hideCreateForm()" class="cancel-btn">Отказ</button>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

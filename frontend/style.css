@@ -1,0 +1,67 @@
+body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+
+/* Картата е фон */
+#map { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
+
+/* Стъкленият панел отляво */
+#ui-panel {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 380px;
+    max-height: 90vh;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+    border-radius: 15px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    overflow-y: auto;
+}
+
+header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+h1 { margin: 0; color: #00ff66; text-transform: uppercase; font-size: 1.8rem;}
+header p { margin: 5px 0 15px 0; color: #aaa; font-size: 0.9rem; }
+
+#missions-list, #create-form { padding: 20px; }
+
+/* Картите на мисиите */
+.tour-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 4px solid #00ff66;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.tour-card:hover { transform: translateX(10px); background: rgba(255, 255, 255, 0.1); }
+.tour-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; }
+.tour-card .host-info { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: #ccc;}
+.tour-card .host-info img { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #00ff66;}
+
+/* Бутони и Форми */
+button { background: transparent; color: white; border: 1px solid #555; padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+button:hover { background: #333; }
+.action-btn { background: #00ff66; color: #000; border: none; font-weight: bold; width: 100%; padding: 12px; margin-top: 10px;}
+.action-btn:hover { background: #00cc55; }
+.cancel-btn { background: #ff3366; width: 100%; margin-top: 5px; border:none;}
+
+input, textarea { width: 90%; background: rgba(0,0,0,0.5); border: 1px solid #444; color: white; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+.hidden { display: none !important; }
+
+/* Дизайн на пиновете (Аватарите на картата) */
+.custom-pin {
+    width: 40px; height: 40px;
+    background: #00ff66;
+    border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
+    border: 3px solid white;
+}
+.custom-pin img { width: 34px; height: 34px; border-radius: 50%; }
+.leaflet-popup-content-wrapper { background: #1a1a1a; color: white; border-radius: 10px; border: 1px solid #00ff66; }
+.leaflet-popup-tip { background: #1a1a1a; }
