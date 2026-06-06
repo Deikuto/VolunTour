@@ -1,113 +1,163 @@
-// Промени на твоя порт, ако го стартираш локално! 
-const API_URL = 'http://localhost:5000/api'; 
+const API_URL = 'http://localhost:5246/api'; 
 
-// 1. Инициализация на картата (Тъмна тема)
-const map = L.map('map', { zoomControl: false }).setView([42.6593, 27.7326], 14);
+const cityLocations = {
+    nessebar: [42.6593, 27.7326],
+    burgas: [42.5048, 27.4626],
+    sofia: [42.6977, 23.3219]
+};
+
+const map = L.map('map', { zoomControl: false }).setView([42.6593, 27.7326], 13);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap'
+    attribution: 'OpenStreetMap'
 }).addTo(map);
 
-// Речник за маркерите (за да можем да ги отваряме от менюто)
-let markers = {};
+let allTours = [];
+let markers = [];
 let isCreating = false;
-let newMissionCoords = null;
+let tempCoords = null;
+let tempMarker = null;
 
-// Симулация на Логин (За демото)
-const currentUser = { name: "Владимир", avatar: "https://ui-avatars.com/api/?name=Vladimir&background=00ff66&color=000" };
+let isLoggedIn = false;
+const currentUser = { name: "Деян", avatar: "https://ui-avatars.com/api/?name=Deyan&background=607D8B&color=fff" };
+
+function openLoginModal() { document.getElementById('login-modal').classList.remove('hidden'); }
+function closeLoginModal() { document.getElementById('login-modal').classList.add('hidden'); }
 
 function simulateLogin() {
+    isLoggedIn = true;
+    closeLoginModal();
     document.getElementById('login-btn').classList.add('hidden');
     document.getElementById('user-profile').classList.remove('hidden');
 }
 
-function showCreateForm() {
-    document.getElementById('missions-list').classList.add('hidden');
-    document.getElementById('create-form').classList.remove('hidden');
-    isCreating = true;
+function logout() {
+    isLoggedIn = false;
+    document.getElementById('login-btn').classList.remove('hidden');
+    document.getElementById('user-profile').classList.add('hidden');
+    cancelCreatingMission();
 }
 
-function hideCreateForm() {
-    document.getElementById('create-form').classList.add('hidden');
-    document.getElementById('missions-list').classList.remove('hidden');
-    isCreating = false;
-}
-
-// 2. Зареждане на мисиите от C# сървъра
-async function loadMissions() {
-    try {
-        const response = await fetch(`${API_URL}/tours`);
-        const tours = await response.json();
-        
-        const container = document.getElementById('tours-container');
-        container.innerHTML = ''; 
-
-        tours.forEach(tour => {
-            // Създаване на Аватар Пин (Custom Marker)
-            const customIcon = L.divIcon({
-                className: 'custom-pin',
-                html: `<img src="${tour.avatarUrl}" alt="Guide">`,
-                iconSize: [40, 40],
-                iconAnchor: [20, 40]
-            });
-
-            // Добавяне на пин на картата
-            const marker = L.marker([tour.lat, tour.lng], { icon: customIcon }).addTo(map);
-            marker.bindPopup(`<b>${tour.title}</b><br>${tour.cause}<br><i>Води: ${tour.guide}</i>`);
-            markers[tour.id] = marker; // Запазваме го
-
-            // Създаване на картата в лявото меню
-            const card = document.createElement('div');
-            card.className = 'tour-card';
-            card.onclick = () => flyToMission(tour.id, tour.lat, tour.lng);
-            card.innerHTML = `
-                <h3>${tour.title}</h3>
-                <div class="host-info">
-                    <img src="${tour.avatarUrl}">
-                    <span>Водено от <b>${tour.guide}</b></span>
-                </div>
-                <p>${tour.cause}</p>
-                <button class="action-btn" onclick="event.stopPropagation(); alert('Записан си! Очакваме те.')">🖐️ Искам да помогна</button>
-            `;
-            container.appendChild(card);
-        });
-    } catch (err) {
-        console.error("Сървърът не отговаря", err);
+function goToLocation() {
+    const city = document.getElementById('location-select').value;
+    if (cityLocations[city]) {
+        map.flyTo(cityLocations[city], 14, { duration: 2 });
     }
 }
 
-// 3. Анимацията за летене (FlyTo)
-function flyToMission(id, lat, lng) {
-    // Картата се анимира и зуумва до локацията
-    map.flyTo([lat, lng], 17, { duration: 1.5 });
-    
-    // След като приключи полета, отваряме пина
-    setTimeout(() => {
-        markers[id].openPopup();
-    }, 1500);
+function filterMissions() {
+    const category = document.getElementById('category-filter').value;
+    renderMissions(category === 'all' ? allTours : allTours.filter(t => t.category === category));
 }
 
-// 4. Логика за Кликане върху картата (Избор на локация за нова мисия)
+async function loadMissions() {
+    try {
+        const response = await fetch(`${API_URL}/tours`);
+        allTours = await response.json();
+        renderMissions(allTours);
+    } catch (err) {
+        console.error("Грешка при връзка със сървъра", err);
+    }
+}
+
+function getCategoryClass(category) {
+    if (category === "Екология") return "ecology";
+    if (category === "Култура") return "culture";
+    if (category === "Инфраструктура") return "infrastructure";
+    return "default";
+}
+
+function renderMissions(toursData) {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    toursData.forEach(tour => {
+        const catClass = getCategoryClass(tour.category);
+        
+        // Изграждане на HTML структурата за формата на капка
+        const pinHtml = `
+            <div class="pin-wrapper pin-${catClass}">
+                <div class="pin-shape"></div>
+                <img src="${tour.avatarUrl}" class="pin-image" alt="Avatar">
+            </div>
+        `;
+
+        const customIcon = L.divIcon({
+            className: '', // Изчистваме базoвия клас, за да не пречи на стиловете
+            html: pinHtml,
+            iconSize: [44, 44],
+            iconAnchor: [22, 44],
+            popupAnchor: [0, -40]
+        });
+
+        const isFull = tour.currentSpots >= tour.maxSpots;
+        const btnClass = isFull ? "popup-action full" : "popup-action active";
+        const btnText = isFull ? "Групата е запълнена" : "Запиши се за участие";
+        const btnOnclick = isFull ? "" : `onclick="joinMission(${tour.id})"`;
+
+        const tagsHtml = tour.tags ? tour.tags.map(tag => `<span class="popup-tag">${tag}</span>`).join('') : '';
+
+        const popupContent = `
+            <div class="popup-container">
+                <div class="popup-header">
+                    <span class="popup-category cat-${catClass}">${tour.category}</span>
+                    <h3>${tour.title}</h3>
+                </div>
+                <div class="popup-details">
+                    <p><strong>Водач:</strong> ${tour.guide}</p>
+                    <p><strong>Време:</strong> ${tour.time}</p>
+                    <p><strong>Обхват:</strong> ${tour.scope}</p>
+                    <p><strong>Цел:</strong> ${tour.cause}</p>
+                    <div class="popup-tags">${tagsHtml}</div>
+                    <p><strong>Участници:</strong> ${tour.currentSpots} / ${tour.maxSpots}</p>
+                </div>
+                <button class="${btnClass}" ${btnOnclick}>${btnText}</button>
+            </div>
+        `;
+
+        const marker = L.marker([tour.lat, tour.lng], { icon: customIcon }).addTo(map);
+        marker.bindPopup(popupContent, { maxWidth: 300, minWidth: 250 });
+        markers.push(marker);
+    });
+}
+
+function startCreatingMission() {
+    isCreating = true;
+    document.getElementById('create-panel').classList.remove('hidden');
+    if (tempMarker) map.removeLayer(tempMarker);
+}
+
+function cancelCreatingMission() {
+    isCreating = false;
+    document.getElementById('create-panel').classList.add('hidden');
+    if (tempMarker) { map.removeLayer(tempMarker); tempMarker = null; }
+    document.getElementById('mission-coords').innerText = "Липсват";
+}
+
 map.on('click', function(e) {
-    if (!isCreating) return; // Правим нещо само ако формата е отворена
-    
-    newMissionCoords = e.latlng;
-    document.getElementById('selected-coords').innerText = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
-    
-    // Временен пин
-    L.marker([e.latlng.lat, e.latlng.lng]).addTo(map).bindPopup("Нова мисия тук!").openPopup();
+    if (!isCreating) return;
+    tempCoords = e.latlng;
+    if (tempMarker) map.removeLayer(tempMarker);
+    tempMarker = L.marker([tempCoords.lat, tempCoords.lng]).addTo(map).bindPopup("Избрана локация").openPopup();
+    document.getElementById('mission-coords').innerText = `${tempCoords.lat.toFixed(4)}, ${tempCoords.lng.toFixed(4)}`;
 });
 
-// 5. Изпращане на новата мисия към сървъра
 async function submitMission() {
-    if (!newMissionCoords) return alert("Първо кликни на картата, за да избереш локация!");
-    
+    if (!tempCoords) { alert("Моля, кликнете върху картата, за да зададете локация."); return; }
+
+    // Събиране на маркираните тагове
+    const selectedTags = Array.from(document.querySelectorAll('#m-tags-container input:checked')).map(cb => cb.value);
+
     const newTour = {
         title: document.getElementById('m-title').value,
         cause: document.getElementById('m-desc').value,
+        category: document.getElementById('m-category').value,
         guide: currentUser.name,
         avatarUrl: currentUser.avatar,
-        lat: newMissionCoords.lat,
-        lng: newMissionCoords.lng,
+        tags: selectedTags,
+        time: document.getElementById('m-time').value,
+        scope: document.getElementById('m-scope').value,
+        lat: tempCoords.lat,
+        lng: tempCoords.lng,
         maxSpots: parseInt(document.getElementById('m-spots').value) || 10,
         currentSpots: 0
     };
@@ -118,15 +168,27 @@ async function submitMission() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newTour)
         });
-
         if (res.ok) {
-            hideCreateForm();
-            loadMissions(); // Презареждаме, за да се появи в списъка
+            cancelCreatingMission();
+            loadMissions();
         }
     } catch (err) {
-        console.error("Грешка при запазване", err);
+        console.error("Възникна грешка при запазване.", err);
     }
 }
 
-// Старт
+async function joinMission(id) {
+    try {
+        const res = await fetch(`${API_URL}/tours/${id}/join`, { method: 'POST' });
+        if (res.ok) {
+            alert('Успешно се записахте.');
+            loadMissions();
+        } else {
+            alert('Групата е запълнена или възникна грешка.');
+        }
+    } catch (err) {
+        console.error("Грешка при записване.", err);
+    }
+}
+
 loadMissions();

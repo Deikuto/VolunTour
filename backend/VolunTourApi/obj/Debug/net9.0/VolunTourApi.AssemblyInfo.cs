@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VolunTourApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ba839110926393e68f67125645d1f578440571a")]
 [assembly: System.Reflection.AssemblyProductAttribute("VolunTourApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VolunTourApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

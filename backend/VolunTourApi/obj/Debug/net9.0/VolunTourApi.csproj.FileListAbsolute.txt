@@ -31,3 +31,4 @@ D:\VolunTour\backend\VolunTourApi\obj\Debug\net9.0\refint\VolunTourApi.dll
 D:\VolunTour\backend\VolunTourApi\obj\Debug\net9.0\VolunTourApi.pdb
 D:\VolunTour\backend\VolunTourApi\obj\Debug\net9.0\VolunTourApi.genruntimeconfig.cache
 D:\VolunTour\backend\VolunTourApi\obj\Debug\net9.0\ref\VolunTourApi.dll
+D:\VolunTour\backend\VolunTourApi\obj\Debug\net9.0\VolunTourApi.sourcelink.json
