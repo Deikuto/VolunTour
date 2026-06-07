@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #EFFAF6;
+  color: #1A1A1A;
+  letter-spacing: -0.006em; /* Inter reads tighter and cleaner with a hair of negative tracking */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root { min-height: 100vh; }
+
+/* Display serif: tighten tracking and balance wraps so big headings sit right */
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+h1 { line-height: 1.04; }
+
+/* Keyboard-visible focus that matches the brand, not the browser default */
+:focus-visible {
+  outline: 2px solid #0E8C72;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c8d6ca; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #0E8C72; }
+
+.leaflet-container { z-index: 1 !important; border-radius: 1rem; font-family: 'Inter', sans-serif; }
+.leaflet-div-icon { background: transparent !important; border: none !important; }
+.leaflet-popup-content-wrapper { border-radius: 0.75rem; }
+.leaflet-popup-content { margin: 12px 14px; }
+
+/* Flat aquamarine wash over the minimal basemap, for a clean stylized map */
+.aqua-map .leaflet-tile {
+  filter: sepia(0.38) saturate(1.7) hue-rotate(110deg) brightness(1.04);
+}
